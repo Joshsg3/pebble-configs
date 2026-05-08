@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HA Pebble Pro</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: #eee; padding: 15px; margin: 0; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
+        h2 { color: #03A9F4; margin: 0 0 15px 0; font-size: 20px; }
+        h3 { color: #888; font-size: 12px; text-transform: uppercase; margin: 20px 0 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        label { display: block; font-size: 10px; color: #aaa; margin-bottom: 4px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 10px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
+        button { width: 100%; padding: 12px; background: #03A9F4; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        .secondary { background: #4CAF50; margin-bottom: 10px; }
+        #status { font-size: 11px; color: #888; margin-bottom: 10px; line-height: 1.4; }
+        .row { display: flex; gap: 8px; }
+        .row .flex { flex: 1; }
+        .row .fixed { flex: 0 0 70px; }
+        .page-box { border-left: 3px solid #03A9F4; padding-left: 15px; margin-bottom: 25px; position: relative; }
+        .del-btn { background: #f44336; width: auto; padding: 5px 10px; font-size: 11px; float: right; }
+        .clearfix::after { content: ""; clear: both; display: table; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Dashboard Setup</h2>
+        <div class="field"><label>HA URL</label><input id="ha_url" type="url" placeholder="https://your-ha.duckdns.org"></div>
+        <div class="field"><label>Access Token</label><input id="ha_token" type="password"></div>
+        <div id="status">Enter URL/Token, then click Save. The watch will fetch your entities in the background. Re-open this page to see the dropdown lists!</div>
+        <div class="field"><label>Mode</label>
+            <select id="mode" onchange="onModeChange()">
+                <option value="0">Dashboard (1 Screen, 3 Buttons)</option>
+                <option value="1">Pages (Up to 10 Screens)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="pages_container"></div>
+    <button id="add_page" style="background:#607D8B; font-size:14px; margin-top:10px;">+ Add New Page</button>
+    <br><br>
+    <button id="sb" style="background:#03A9F4; font-weight:bold; height:60px;">SAVE TO WATCH</button>
+
+    <datalist id="el"></datalist>
+
+    <script>
+        var pages = [];
+        var container = document.getElementById('pages_container');
+
+        function createPageUI(p, index, mode) {
+            var div = document.createElement('div');
+            div.className = 'page-box clearfix';
+            var html = (index > 0 ? `<button class="del-btn" onclick="removePage(${index})">REMOVE</button>` : '');
+            html += `<h3>${mode == '0' ? 'Dashboard Metrics' : 'Page ' + (index + 1)}</h3>`;
+            html += `
+                <div class="row"><div class="flex"><label>Metric A</label><input class="p-m1" value="${p.m1||''}" list="el"></div><div class="fixed"><label>Label</label><input class="p-ml1" value="${p.ml1||''}" placeholder="NAME"></div></div>
+                <div class="row"><div class="flex"><label>Metric B</label><input class="p-m2" value="${p.m2||''}" list="el"></div><div class="fixed"><label>Label</label><input class="p-ml2" value="${p.ml2||''}"></div></div>
+            `;
+            if(mode == '0') {
+                html += `<h3>Actions</h3>
+                    <div class="row"><div class="flex"><label>UP Action</label><input class="p-a" value="${p.a||''}" list="el"></div><div class="fixed"><label>Label</label><input class="p-al" value="${p.al||''}"></div></div>
+                    <div class="row"><div class="flex"><label>SEL Action</label><input class="p-a2" value="${p.a2||''}" list="el"></div><div class="fixed"><label>Label</label><input class="p-al2" value="${p.al2||''}"></div></div>
+                    <div class="row"><div class="flex"><label>DOWN Action</label><input class="p-a3" value="${p.a3||''}" list="el"></div><div class="fixed"><label>Label</label><input class="p-al3" value="${p.al3||''}"></div></div>`;
+            } else {
+                html += `<div class="row"><div class="flex"><label>Action</label><input class="p-a" value="${p.a||''}" list="el"></div><div class="fixed"><label>Label</label><input class="p-al" value="${p.al||''}"></div></div>`;
+            }
+            div.innerHTML = html;
+            container.appendChild(div);
+        }
+
+        function renderPages() {
+            var mode = document.getElementById('mode').value;
+            container.innerHTML = "";
+            if(mode == '0') {
+                document.getElementById('add_page').style.display = 'none';
+                createPageUI(pages[0] || {}, 0, mode);
+            } else {
+                document.getElementById('add_page').style.display = 'block';
+                pages.forEach((p, i) => createPageUI(p, i, mode));
+            }
+        }
+
+        function saveCurrentData() {
+            var boxes = document.querySelectorAll('.page-box');
+            var mode = document.getElementById('mode').value;
+            boxes.forEach((box, i) => {
+                if(!pages[i]) pages[i] = {};
+                var f = (s) => box.querySelector(s);
+                if(f('.p-m1')) pages[i].m1 = f('.p-m1').value;
+                if(f('.p-ml1')) pages[i].ml1 = f('.p-ml1').value;
+                if(f('.p-m2')) pages[i].m2 = f('.p-m2').value;
+                if(f('.p-ml2')) pages[i].ml2 = f('.p-ml2').value;
+                if(f('.p-a')) pages[i].a = f('.p-a').value;
+                if(f('.p-al')) pages[i].al = f('.p-al').value;
+                if(mode == '0' && i == 0) {
+                    if(f('.p-a2')) pages[i].a2 = f('.p-a2').value;
+                    if(f('.p-al2')) pages[i].al2 = f('.p-al2').value;
+                    if(f('.p-a3')) pages[i].a3 = f('.p-a3').value;
+                    if(f('.p-al3')) pages[i].al3 = f('.p-al3').value;
+                }
+            });
+        }
+
+        function onModeChange() { saveCurrentData(); renderPages(); }
+        function removePage(i) { saveCurrentData(); pages.splice(i, 1); renderPages(); }
+        document.getElementById('add_page').onclick = function() { saveCurrentData(); pages.push({}); renderPages(); };
+
+        function g(n){var r=new RegExp('[?&]'+n+'=([^&#]*)');var m=r.exec(window.location.search);return m?decodeURIComponent(m[1]):'';}
+        document.getElementById('ha_url').value = g('ha_url');
+        document.getElementById('ha_token').value = g('ha_token');
+        document.getElementById('mode').value = g('mode') || "0";
+        try { var saved = g('pages_json'); if(saved) pages = JSON.parse(saved); if(!pages || pages.length === 0) pages = [{}]; } catch(e) { pages = [{}]; }
+        
+        // Populate Entity Cache from URL
+        try {
+            var cache = g('entities_cache');
+            if(cache) {
+                var data = JSON.parse(cache);
+                var dl = document.getElementById('el'); dl.innerHTML = "";
+                data.forEach(e => { var o = document.createElement('option'); o.value = e.entity_id; dl.appendChild(o); });
+                document.getElementById('status').innerText = "Loaded " + data.length + " entities from cache.";
+            }
+        } catch(e) {}
+        
+        renderPages();
+
+        document.getElementById('sb').onclick = function() {
+            saveCurrentData();
+            var config = { ha_url: document.getElementById('ha_url').value, ha_token: document.getElementById('ha_token').value, mode: document.getElementById('mode').value, pages: pages };
+            var e = encodeURIComponent(JSON.stringify(config)), r = "pebblejs://close";
+            var m = new RegExp('[?&]return_to=([^&#]*)').exec(window.location.search);
+            if(m) r = decodeURIComponent(m[1]);
+            window.location.href = r + (r.indexOf('?')>=0?'&':'?') + "response=" + e + "#" + e;
+        };
+    </script>
+</body>
+</html>
