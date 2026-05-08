@@ -12,6 +12,7 @@
         label { display: block; font-size: 10px; color: #aaa; margin-bottom: 4px; text-transform: uppercase; }
         input, select { width: 100%; padding: 10px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
         button { width: 100%; padding: 12px; background: #03A9F4; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        .secondary { background: #4CAF50; margin-top: 10px; font-size: 12px; padding: 8px; }
         .page-box { border-left: 3px solid #03A9F4; padding-left: 15px; margin-bottom: 25px; position: relative; }
         .del-btn { background: #f44336; width: auto; padding: 5px 10px; font-size: 11px; float: right; }
         .row { display: flex; gap: 8px; }
@@ -23,11 +24,12 @@
 </head>
 <body>
     <div class="card">
-        <h2>Dashboard Setup v3</h2>
+        <h2>Dashboard Setup v4</h2>
         <div class="field"><label>HA URL</label><input id="ha_url" type="url"></div>
         <div class="field"><label>Access Token</label><input id="ha_token" type="password"></div>
-        <div id="status">Sync: Connect and Save. Re-open to see dropdowns!</div>
-        <div class="field"><label>Mode</label>
+        <div id="status">Sync: Enter details and Save. Re-open to see your devices!</div>
+        <button onclick="fetchDirect()" class="secondary">Load Full List Now (Requires CORS)</button>
+        <div class="field" style="margin-top:20px;"><label>Mode</label>
             <select id="mode" onchange="onModeChange()">
                 <option value="0">Dashboard (1 Screen, 3 Buttons)</option>
                 <option value="1">Pages (Up to 10 Screens)</option>
@@ -104,7 +106,20 @@
         function removePage(i) { saveCurrentData(); pages.splice(i, 1); renderPages(); }
         document.getElementById('add_page').onclick = function() { saveCurrentData(); pages.push({}); renderPages(); };
 
-        // DECODE FROM HASH (#) - Bypasses URI Too Long
+        function fetchDirect() {
+            var u = document.getElementById('ha_url').value, t = document.getElementById('ha_token').value;
+            if(!u || !t) return alert("Enter URL and Token first");
+            document.getElementById('status').innerText = "Fetching directly...";
+            fetch(u + '/api/states', { headers: { 'Authorization': 'Bearer ' + t } })
+            .then(r => r.json()).then(data => {
+                var dl = document.getElementById('el'); dl.innerHTML = "";
+                data.forEach(e => { var o = document.createElement('option'); o.value = e.entity_id; dl.appendChild(o); });
+                document.getElementById('status').innerText = "Direct Sync: Loaded " + data.length + " entities!";
+            }).catch(e => {
+                document.getElementById('status').innerText = "CORS blocked browser sync. Just hit SAVE and re-open to sync via watch!";
+            });
+        }
+
         try {
             var h = window.location.hash;
             if(h && h.length > 2) {
@@ -117,12 +132,11 @@
                     var items = d.ec.split('^');
                     var dl = document.getElementById('el'); dl.innerHTML = "";
                     items.forEach(it => { var o = document.createElement('option'); o.value = it.split('|')[0]; dl.appendChild(o); });
-                    document.getElementById('status').innerText = "Sync: Loaded " + items.length + " entities.";
+                    document.getElementById('status').innerText = "Watch Sync: Loaded " + items.length + " entities.";
                 }
             }
-        } catch(e) { console.log("Hash Parse Err"); }
+        } catch(e) { }
         if(!pages || pages.length === 0) pages = [{}];
-
         renderPages();
 
         document.getElementById('sb').onclick = function() {
