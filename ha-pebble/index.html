@@ -27,7 +27,7 @@
         <h2>Dashboard Setup</h2>
         <div class="field"><label>HA URL</label><input id="ha_url" type="url" placeholder="https://your-ha.duckdns.org"></div>
         <div class="field"><label>Access Token</label><input id="ha_token" type="password"></div>
-        <div id="status">Enter URL/Token, then click Save. The watch will fetch your entities in the background. Re-open this page to see the dropdown lists!</div>
+        <div id="status">Enter URL/Token, click Save. Re-open to see your entities!</div>
         <div class="field"><label>Mode</label>
             <select id="mode" onchange="onModeChange()">
                 <option value="0">Dashboard (1 Screen, 3 Buttons)</option>
@@ -111,14 +111,19 @@
         document.getElementById('mode').value = g('mode') || "0";
         try { var saved = g('pages_json'); if(saved) pages = JSON.parse(saved); if(!pages || pages.length === 0) pages = [{}]; } catch(e) { pages = [{}]; }
         
-        // Populate Entity Cache from URL
+        // DECODE COMPACT CACHE: id|name^id|name
         try {
-            var cache = g('entities_cache');
-            if(cache) {
-                var data = JSON.parse(cache);
+            var ec = g('ec');
+            if(ec) {
+                var items = ec.split('^');
                 var dl = document.getElementById('el'); dl.innerHTML = "";
-                data.forEach(e => { var o = document.createElement('option'); o.value = e.entity_id; dl.appendChild(o); });
-                document.getElementById('status').innerText = "Loaded " + data.length + " entities from cache.";
+                items.forEach(item => {
+                    var p = item.split('|');
+                    var o = document.createElement('option'); 
+                    o.value = p[0];
+                    dl.appendChild(o);
+                });
+                document.getElementById('status').innerText = "Loaded " + items.length + " entities from watch cache.";
             }
         } catch(e) {}
         
