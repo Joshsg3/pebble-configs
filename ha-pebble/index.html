@@ -23,10 +23,10 @@
 </head>
 <body>
     <div class="card">
-        <h2>Dashboard Setup</h2>
+        <h2>Dashboard Setup v3</h2>
         <div class="field"><label>HA URL</label><input id="ha_url" type="url"></div>
         <div class="field"><label>Access Token</label><input id="ha_token" type="password"></div>
-        <div id="status">Enter details and Save. Re-open to see entities!</div>
+        <div id="status">Sync: Connect and Save. Re-open to see dropdowns!</div>
         <div class="field"><label>Mode</label>
             <select id="mode" onchange="onModeChange()">
                 <option value="0">Dashboard (1 Screen, 3 Buttons)</option>
@@ -104,27 +104,25 @@
         function removePage(i) { saveCurrentData(); pages.splice(i, 1); renderPages(); }
         document.getElementById('add_page').onclick = function() { saveCurrentData(); pages.push({}); renderPages(); };
 
-        function g(n){var r=new RegExp('[?&]'+n+'=([^&#]*)');var m=r.exec(window.location.search);return m?decodeURIComponent(m[1]):'';}
-        document.getElementById('ha_url').value = g('ha_url');
-        document.getElementById('ha_token').value = g('ha_token');
-        document.getElementById('mode').value = g('mode') || "0";
-        
-        // Decode Big Data from Hash (#)
+        // DECODE FROM HASH (#) - Bypasses URI Too Long
         try {
             var h = window.location.hash;
             if(h && h.length > 2) {
-                var data = JSON.parse(decodeURIComponent(h.substring(1)));
-                if(data.p) pages = data.p;
-                if(data.ec) {
-                    var items = data.ec.split('^');
+                var d = JSON.parse(decodeURIComponent(h.substring(1)));
+                if(d.u) document.getElementById('ha_url').value = d.u;
+                if(d.t) document.getElementById('ha_token').value = d.t;
+                if(d.m) document.getElementById('mode').value = d.m;
+                if(d.p) pages = d.p;
+                if(d.ec) {
+                    var items = d.ec.split('^');
                     var dl = document.getElementById('el'); dl.innerHTML = "";
                     items.forEach(it => { var o = document.createElement('option'); o.value = it.split('|')[0]; dl.appendChild(o); });
                     document.getElementById('status').innerText = "Sync: Loaded " + items.length + " entities.";
                 }
             }
-        } catch(e) { console.log("Hash Parse Error"); }
+        } catch(e) { console.log("Hash Parse Err"); }
         if(!pages || pages.length === 0) pages = [{}];
-        
+
         renderPages();
 
         document.getElementById('sb').onclick = function() {
