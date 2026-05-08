@@ -12,22 +12,21 @@
         label { display: block; font-size: 10px; color: #aaa; margin-bottom: 4px; text-transform: uppercase; }
         input, select { width: 100%; padding: 10px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
         button { width: 100%; padding: 12px; background: #03A9F4; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-        .secondary { background: #4CAF50; margin-bottom: 10px; }
-        #status { font-size: 11px; color: #888; margin-bottom: 10px; line-height: 1.4; }
+        .page-box { border-left: 3px solid #03A9F4; padding-left: 15px; margin-bottom: 25px; position: relative; }
+        .del-btn { background: #f44336; width: auto; padding: 5px 10px; font-size: 11px; float: right; }
         .row { display: flex; gap: 8px; }
         .row .flex { flex: 1; }
         .row .fixed { flex: 0 0 70px; }
-        .page-box { border-left: 3px solid #03A9F4; padding-left: 15px; margin-bottom: 25px; position: relative; }
-        .del-btn { background: #f44336; width: auto; padding: 5px 10px; font-size: 11px; float: right; }
+        #status { font-size: 11px; color: #888; margin-bottom: 10px; }
         .clearfix::after { content: ""; clear: both; display: table; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Dashboard Setup</h2>
-        <div class="field"><label>HA URL</label><input id="ha_url" type="url" placeholder="https://your-ha.duckdns.org"></div>
+        <div class="field"><label>HA URL</label><input id="ha_url" type="url"></div>
         <div class="field"><label>Access Token</label><input id="ha_token" type="password"></div>
-        <div id="status">Enter URL/Token, click Save. Re-open to see your entities!</div>
+        <div id="status">Enter details and Save. Re-open to see entities!</div>
         <div class="field"><label>Mode</label>
             <select id="mode" onchange="onModeChange()">
                 <option value="0">Dashboard (1 Screen, 3 Buttons)</option>
@@ -109,23 +108,22 @@
         document.getElementById('ha_url').value = g('ha_url');
         document.getElementById('ha_token').value = g('ha_token');
         document.getElementById('mode').value = g('mode') || "0";
-        try { var saved = g('pages_json'); if(saved) pages = JSON.parse(saved); if(!pages || pages.length === 0) pages = [{}]; } catch(e) { pages = [{}]; }
         
-        // DECODE COMPACT CACHE: id|name^id|name
+        // Decode Big Data from Hash (#)
         try {
-            var ec = g('ec');
-            if(ec) {
-                var items = ec.split('^');
-                var dl = document.getElementById('el'); dl.innerHTML = "";
-                items.forEach(item => {
-                    var p = item.split('|');
-                    var o = document.createElement('option'); 
-                    o.value = p[0];
-                    dl.appendChild(o);
-                });
-                document.getElementById('status').innerText = "Loaded " + items.length + " entities from watch cache.";
+            var h = window.location.hash;
+            if(h && h.length > 2) {
+                var data = JSON.parse(decodeURIComponent(h.substring(1)));
+                if(data.p) pages = data.p;
+                if(data.ec) {
+                    var items = data.ec.split('^');
+                    var dl = document.getElementById('el'); dl.innerHTML = "";
+                    items.forEach(it => { var o = document.createElement('option'); o.value = it.split('|')[0]; dl.appendChild(o); });
+                    document.getElementById('status').innerText = "Sync: Loaded " + items.length + " entities.";
+                }
             }
-        } catch(e) {}
+        } catch(e) { console.log("Hash Parse Error"); }
+        if(!pages || pages.length === 0) pages = [{}];
         
         renderPages();
 
