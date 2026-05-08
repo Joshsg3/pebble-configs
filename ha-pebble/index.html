@@ -18,17 +18,21 @@
         .row { display: flex; gap: 8px; }
         .row .flex { flex: 1; }
         .row .fixed { flex: 0 0 70px; }
-        #status { font-size: 11px; color: #888; margin-bottom: 10px; }
+        #status { font-size: 11px; color: #888; margin-bottom: 10px; line-height: 1.4; }
+        code { background: #000; color: #4CAF50; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+        pre { background: #000; padding: 10px; border: 1px solid #444; border-radius: 4px; font-size: 10px; overflow-x: auto; color: #4CAF50; }
         .clearfix::after { content: ""; clear: both; display: table; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Dashboard Setup v4</h2>
-        <div class="field"><label>HA URL</label><input id="ha_url" type="url"></div>
+        <div class="field"><label>HA URL</label><input id="ha_url" type="url" placeholder="https://your-ha.nabu.casa"></div>
         <div class="field"><label>Access Token</label><input id="ha_token" type="password"></div>
+        
         <div id="status">Sync: Enter details and Save. Re-open to see your devices!</div>
         <button onclick="fetchDirect()" class="secondary">Load Full List Now (Requires CORS)</button>
+        
         <div class="field" style="margin-top:20px;"><label>Mode</label>
             <select id="mode" onchange="onModeChange()">
                 <option value="0">Dashboard (1 Screen, 3 Buttons)</option>
@@ -109,14 +113,19 @@
         function fetchDirect() {
             var u = document.getElementById('ha_url').value, t = document.getElementById('ha_token').value;
             if(!u || !t) return alert("Enter URL and Token first");
-            document.getElementById('status').innerText = "Fetching directly...";
-            fetch(u + '/api/states', { headers: { 'Authorization': 'Bearer ' + t } })
+            document.getElementById('status').innerText = "Connecting directly to Home Assistant...";
+            
+            fetch(u + '/api/states', { headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } })
             .then(r => r.json()).then(data => {
                 var dl = document.getElementById('el'); dl.innerHTML = "";
                 data.forEach(e => { var o = document.createElement('option'); o.value = e.entity_id; dl.appendChild(o); });
-                document.getElementById('status').innerText = "Direct Sync: Loaded " + data.length + " entities!";
+                document.getElementById('status').innerHTML = "<b style='color:#4CAF50;'>Direct Sync OK:</b> Loaded " + data.length + " entities!";
             }).catch(e => {
-                document.getElementById('status').innerText = "CORS blocked browser sync. Just hit SAVE and re-open to sync via watch!";
+                document.getElementById('status').innerHTML = 
+                    "<b style='color:#f44336;'>CORS Blocked:</b> Browser cannot talk to HA.<br><br>" +
+                    "To fix this and enable instant loading, add this to your HA <code>configuration.yaml</code> and restart:<br>" +
+                    "<pre>http:\n  cors_allowed_origins:\n    - https://joshsg3.github.io</pre>" +
+                    "Otherwise, just hit <b>SAVE</b> below and re-open this page to sync via the watch instead.";
             });
         }
 
