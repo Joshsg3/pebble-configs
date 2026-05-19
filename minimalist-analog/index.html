@@ -27,6 +27,10 @@
         <label for="showBatteryBar">Battery Bar (under logo)</label>
         <input type="checkbox" id="showBatteryBar">
     </div>
+    <div>
+        <label for="showSeconds">Show Seconds Hand</label>
+        <input type="checkbox" id="showSeconds">
+    </div>
     <div class="full-width">
         <label>Left Complication</label>
         <select id="leftComplication">
@@ -80,6 +84,7 @@
         document.getElementById('showBluetooth').checked = getQueryParam('ShowBluetooth', '1') === '1';
         document.getElementById('showSteps').checked = getQueryParam('ShowSteps', '1') === '1';
         document.getElementById('showBatteryBar').checked = getQueryParam('ShowBattBar', '1') === '1';
+        document.getElementById('showSeconds').checked = getQueryParam('ShowSeconds', '1') === '1';
         document.getElementById('leftComplication').value = getQueryParam('LeftComp', '1');
         document.getElementById('rightComplication').value = getQueryParam('RightComp', '2');
         document.getElementById('weatherKey').value = getQueryParam('WeatherKey', '');
@@ -90,6 +95,7 @@
                 'ShowBluetooth': document.getElementById('showBluetooth').checked,
                 'ShowSteps': document.getElementById('showSteps').checked,
                 'ShowBattBar': document.getElementById('showBatteryBar').checked,
+                'ShowSeconds': document.getElementById('showSeconds').checked,
                 'LeftComp': parseInt(document.getElementById('leftComplication').value),
                 'RightComp': parseInt(document.getElementById('rightComplication').value),
                 'WeatherKey': document.getElementById('weatherKey').value,
