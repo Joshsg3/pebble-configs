@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <style>
+        body { background: #111; color: #fff; font-family: sans-serif; padding: 20px; }
+        div { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        label { font-weight: bold; }
+        input[type="checkbox"] { width: auto; }
+        input[type="text"], select { background: #222; color: #fff; border: 1px solid #444; padding: 8px; width: 150px; box-sizing: border-box; }
+        .full-width { display: block; }
+        .full-width input, .full-width select { width: 100%; margin-top: 5px; }
+        button { background: #00e5ff; color: #000; border: none; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; display: block; }
+    </style>
+</head>
+<body>
+    <h2>Settings</h2>
+    <div>
+        <label for="showBluetooth">Bluetooth Icon</label>
+        <input type="checkbox" id="showBluetooth">
+    </div>
+    <div>
+        <label for="showSteps">Step Progress Border</label>
+        <input type="checkbox" id="showSteps">
+    </div>
+    <div>
+        <label for="showBatteryBar">Battery Bar (under logo)</label>
+        <input type="checkbox" id="showBatteryBar">
+    </div>
+    <div class="full-width">
+        <label>Left Complication</label>
+        <select id="leftComplication">
+            <option value="0">None</option>
+            <option value="1">Weather</option>
+            <option value="2">Steps</option>
+            <option value="3">Heart Rate</option>
+            <option value="4">Battery</option>
+            <option value="5">Distance</option>
+            <option value="6">Day of Week</option>
+        </select>
+    </div>
+    <div class="full-width">
+        <label>Right Complication</label>
+        <select id="rightComplication">
+            <option value="0">None</option>
+            <option value="1">Weather</option>
+            <option value="2">Steps</option>
+            <option value="3">Heart Rate</option>
+            <option value="4">Battery</option>
+            <option value="5">Distance</option>
+            <option value="6">Day of Week</option>
+        </select>
+    </div>
+    <div class="full-width">
+        <label>Weather API Key</label>
+        <input type="text" id="weatherKey" placeholder="Paste key here">
+    </div>
+    <div class="full-width">
+        <label>Date Format</label>
+        <input type="text" id="dateFormat" placeholder="%d %b">
+        <small style="color:#888;display:block;margin-top:5px">Use %d (day), %m (month), %y (year), %b (month name). Example: %d/%m/%y</small>
+    </div>
+    <button id="saveBtn">Save</button>
+
+    <script>
+        function getQueryParam(n, d) {
+            var q = window.location.search.substring(1);
+            var v = q.split("&");
+            for (var i = 0; i < v.length; i++) {
+                var p = v[i].split("=");
+                try {
+                    if (decodeURIComponent(p[0]) === n) return decodeURIComponent(p[1]);
+                } catch (e) {
+                    if (p[0] === n) return p[1];
+                }
+            }
+            return d;
+        }
+
+        document.getElementById('showBluetooth').checked = getQueryParam('ShowBluetooth', '1') === '1';
+        document.getElementById('showSteps').checked = getQueryParam('ShowSteps', '1') === '1';
+        document.getElementById('showBatteryBar').checked = getQueryParam('ShowBattBar', '1') === '1';
+        document.getElementById('leftComplication').value = getQueryParam('LeftComp', '1');
+        document.getElementById('rightComplication').value = getQueryParam('RightComp', '2');
+        document.getElementById('weatherKey').value = getQueryParam('WeatherKey', '');
+        document.getElementById('dateFormat').value = getQueryParam('DateFormat', '%d %b');
+
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            var config = {
+                'ShowBluetooth': document.getElementById('showBluetooth').checked,
+                'ShowSteps': document.getElementById('showSteps').checked,
+                'ShowBattBar': document.getElementById('showBatteryBar').checked,
+                'LeftComp': parseInt(document.getElementById('leftComplication').value),
+                'RightComp': parseInt(document.getElementById('rightComplication').value),
+                'WeatherKey': document.getElementById('weatherKey').value,
+                'DateFormat': document.getElementById('dateFormat').value
+            };
+            var return_to = getQueryParam('return_to', 'pebblejs://close#');
+            document.location = return_to + encodeURIComponent(JSON.stringify(config));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #0f0f0f; color: #eee; padding: 20px; }
+    h1 { color: #6366f1; text-align: center; }
+    .f { margin-bottom: 15px; }
+    label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
+    input, select { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; border-radius: 5px; color: #fff; }
+    .b { width: 100%; padding: 12px; background: #6366f1; border: none; border-radius: 5px; color: #fff; font-weight: bold; margin-top: 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Immich Clock</h1>
+  <div class="f"><label>Base URL</label><input id="baseUrl"></div>
+  <div class="f"><label>API Key</label><input id="apiKey"></div>
+  <div class="f"><label>Album ID</label><input id="albumId"></div>
+  <div class="f">
+    <label>Refresh Interval</label>
+    <select id="refreshInterval">
+      <option value="60">1 Minute</option>
+      <option value="300">5 Minutes</option>
+      <option value="600">10 Minutes</option>
+      <option value="900">15 Minutes</option>
+      <option value="1200">20 Minutes</option>
+      <option value="1500">25 Minutes</option>
+      <option value="1800">30 Minutes</option>
+      <option value="3600">1 Hour</option>
+      <option value="10800">3 Hours</option>
+      <option value="21600">6 Hours</option>
+      <option value="43200">12 Hours</option>
+      <option value="86400">Daily</option>
+      <option value="0">Manual Only</option>
+    </select>
+  </div>
+  <div class="f" style="display: flex; align-items: center; margin-top: 15px;">
+    <input type="checkbox" id="enableCache" style="width: auto; margin-right: 10px; cursor: pointer;">
+    <label style="margin: 0; cursor: pointer;" for="enableCache">Enable Startup Image</label>
+  </div>
+  <button class="b" id="save">Save Settings</button>
+
+  <script>
+    function get(k) {
+      var m = window.location.href.match(new RegExp("[?&#]" + k + "=([^&#]*)"));
+      return m ? decodeURIComponent(m[1]) : "";
+    }
+    document.getElementById("baseUrl").value = get("baseUrl");
+    document.getElementById("apiKey").value = get("apiKey");
+    document.getElementById("albumId").value = get("albumId");
+    document.getElementById("refreshInterval").value = get("refreshInterval") || "1800";
+    document.getElementById("enableCache").checked = (get("enableCache") !== "false");
+
+    document.getElementById("save").onclick = function() {
+      var r = {
+        baseUrl: document.getElementById("baseUrl").value.replace(/\/$/, ""),
+        apiKey: document.getElementById("apiKey").value,
+        albumId: document.getElementById("albumId").value,
+        refreshInterval: parseInt(document.getElementById("refreshInterval").value, 10),
+        enableCache: document.getElementById("enableCache").checked
+      };
+      var configData = encodeURIComponent(JSON.stringify(r));
+      var m = window.location.href.match(/[?&]return_to=([^&#]+)/);
+      var ret = m ? decodeURIComponent(m[1]) : "pebblejs://close";
+      var finalUrl = ret + (ret.indexOf('?') >= 0 ? '&' : '?') + "response=" + configData + "#" + configData;
+      console.log("Saving to: " + finalUrl);
+      window.location.href = finalUrl;
+    };
+  </script>
+</body>
+</html>
