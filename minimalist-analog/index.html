@@ -71,6 +71,10 @@
             <option value="1">Fahrenheit</option>
         </select>
     </div>
+    <div class="full-width">
+        <label>Step Goal</label>
+        <input type="text" id="stepGoal" placeholder="10000">
+    </div>
     <button id="saveBtn">Save</button>
 
     <script>
@@ -97,6 +101,7 @@
         document.getElementById('weatherKey').value = getQueryParam('WeatherKey', '');
         document.getElementById('dateFormat').value = getQueryParam('DateFormat', '%d %b');
         document.getElementById('tempUnit').value = getQueryParam('TempUnit', '0');
+        document.getElementById('stepGoal').value = getQueryParam('StepGoal', '10000');
 
         document.getElementById('saveBtn').addEventListener('click', function() {
             var config = {
@@ -108,7 +113,8 @@
                 'RightComp': parseInt(document.getElementById('rightComplication').value),
                 'WeatherKey': document.getElementById('weatherKey').value,
                 'DateFormat': document.getElementById('dateFormat').value,
-                'TempUnit': parseInt(document.getElementById('tempUnit').value)
+                'TempUnit': parseInt(document.getElementById('tempUnit').value),
+                'StepGoal': parseInt(document.getElementById('stepGoal').value) || 10000
             };
             var return_to = getQueryParam('return_to', 'pebblejs://close#');
             document.location = return_to + encodeURIComponent(JSON.stringify(config));
