@@ -64,6 +64,13 @@
         <input type="text" id="dateFormat" placeholder="%d %b">
         <small style="color:#888;display:block;margin-top:5px">Use %d (day), %m (month), %y (year), %b (month name). Example: %d/%m/%y</small>
     </div>
+    <div class="full-width">
+        <label>Temperature Unit</label>
+        <select id="tempUnit">
+            <option value="0">Celsius</option>
+            <option value="1">Fahrenheit</option>
+        </select>
+    </div>
     <button id="saveBtn">Save</button>
 
     <script>
@@ -89,6 +96,7 @@
         document.getElementById('rightComplication').value = getQueryParam('RightComp', '2');
         document.getElementById('weatherKey').value = getQueryParam('WeatherKey', '');
         document.getElementById('dateFormat').value = getQueryParam('DateFormat', '%d %b');
+        document.getElementById('tempUnit').value = getQueryParam('TempUnit', '0');
 
         document.getElementById('saveBtn').addEventListener('click', function() {
             var config = {
@@ -99,7 +107,8 @@
                 'LeftComp': parseInt(document.getElementById('leftComplication').value),
                 'RightComp': parseInt(document.getElementById('rightComplication').value),
                 'WeatherKey': document.getElementById('weatherKey').value,
-                'DateFormat': document.getElementById('dateFormat').value
+                'DateFormat': document.getElementById('dateFormat').value,
+                'TempUnit': parseInt(document.getElementById('tempUnit').value)
             };
             var return_to = getQueryParam('return_to', 'pebblejs://close#');
             document.location = return_to + encodeURIComponent(JSON.stringify(config));
