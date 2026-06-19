@@ -31,6 +31,10 @@
         <label for="showSeconds">Show Seconds Hand</label>
         <input type="checkbox" id="showSeconds">
     </div>
+    <div>
+        <label for="fixedHands">Fixed Hand Length</label>
+        <input type="checkbox" id="fixedHands">
+    </div>
     <div class="full-width">
         <label>Left Complication</label>
         <select id="leftComplication">
@@ -54,10 +58,6 @@
             <option value="5">Distance</option>
             <option value="6">Day of Week</option>
         </select>
-    </div>
-    <div class="full-width">
-        <label>Weather API Key</label>
-        <input type="text" id="weatherKey" placeholder="Paste key here">
     </div>
     <div class="full-width">
         <label>Date Format</label>
@@ -96,9 +96,9 @@
         document.getElementById('showSteps').checked = getQueryParam('ShowSteps', '1') === '1';
         document.getElementById('showBatteryBar').checked = getQueryParam('ShowBattBar', '1') === '1';
         document.getElementById('showSeconds').checked = getQueryParam('ShowSeconds', '1') === '1';
+        document.getElementById('fixedHands').checked = getQueryParam('FixedHands', '0') === '1';
         document.getElementById('leftComplication').value = getQueryParam('LeftComp', '1');
         document.getElementById('rightComplication').value = getQueryParam('RightComp', '2');
-        document.getElementById('weatherKey').value = getQueryParam('WeatherKey', '');
         document.getElementById('dateFormat').value = getQueryParam('DateFormat', '%d %b');
         document.getElementById('tempUnit').value = getQueryParam('TempUnit', '0');
         document.getElementById('stepGoal').value = getQueryParam('StepGoal', '10000');
@@ -109,9 +109,9 @@
                 'ShowSteps': document.getElementById('showSteps').checked,
                 'ShowBattBar': document.getElementById('showBatteryBar').checked,
                 'ShowSeconds': document.getElementById('showSeconds').checked,
+                'FixedHands': document.getElementById('fixedHands').checked,
                 'LeftComp': parseInt(document.getElementById('leftComplication').value),
                 'RightComp': parseInt(document.getElementById('rightComplication').value),
-                'WeatherKey': document.getElementById('weatherKey').value,
                 'DateFormat': document.getElementById('dateFormat').value,
                 'TempUnit': parseInt(document.getElementById('tempUnit').value),
                 'StepGoal': parseInt(document.getElementById('stepGoal').value) || 10000
