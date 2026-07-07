@@ -35,6 +35,10 @@
         <label for="fixedHands">Fixed Hand Length</label>
         <input type="checkbox" id="fixedHands">
     </div>
+    <div>
+        <label for="largeDate">Large Date Font</label>
+        <input type="checkbox" id="largeDate">
+    </div>
     <div class="full-width">
         <label>Left Complication</label>
         <select id="leftComplication">
@@ -97,6 +101,7 @@
         document.getElementById('showBatteryBar').checked = getQueryParam('ShowBattBar', '1') === '1';
         document.getElementById('showSeconds').checked = getQueryParam('ShowSeconds', '1') === '1';
         document.getElementById('fixedHands').checked = getQueryParam('FixedHands', '0') === '1';
+        document.getElementById('largeDate').checked = getQueryParam('LargeDate', '0') === '1';
         document.getElementById('leftComplication').value = getQueryParam('LeftComp', '1');
         document.getElementById('rightComplication').value = getQueryParam('RightComp', '2');
         document.getElementById('dateFormat').value = getQueryParam('DateFormat', '%d %b');
@@ -110,6 +115,7 @@
                 'ShowBattBar': document.getElementById('showBatteryBar').checked,
                 'ShowSeconds': document.getElementById('showSeconds').checked,
                 'FixedHands': document.getElementById('fixedHands').checked,
+                'LargeDate': document.getElementById('largeDate').checked,
                 'LeftComp': parseInt(document.getElementById('leftComplication').value),
                 'RightComp': parseInt(document.getElementById('rightComplication').value),
                 'DateFormat': document.getElementById('dateFormat').value,
