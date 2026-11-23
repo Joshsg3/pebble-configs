@@ -449,10 +449,14 @@
       wrapInst.className = 'plugin-field';
       var lblInst = document.createElement('div');
       lblInst.className = 'sublabel';
-      lblInst.textContent = 'Instance';
+      lblInst.textContent = 'Item';
       var selInst = document.createElement('select');
+      var hintInst = document.createElement('span');
+      hintInst.className = 'hint';
+      hintInst.style.display = 'none';
       wrapInst.appendChild(lblInst);
       wrapInst.appendChild(selInst);
+      wrapInst.appendChild(hintInst);
 
       var wrapProp = document.createElement('div');
       wrapProp.className = 'plugin-field';
@@ -504,6 +508,7 @@
             category: '',
             item: '',
             instanceIndex: 0,
+            instanceId: '',
             property: '',
             shape: ''
           });
@@ -514,6 +519,7 @@
             category: parts[2],
             item: parts[3],
             instanceIndex: 0,
+            instanceId: '',
             property: '',
             shape: ''
           });
@@ -521,8 +527,15 @@
       };
 
       selInst.onchange = function () {
+        var st = state.slotStatus[idx] || {};
+        var cfg = state.slotConfigs[idx] || {};
+        var meta = getSourceUiMeta(cfg.category, cfg.item);
+        var idxVal = parseInt(selInst.value, 10) || 0;
+        var ids = st.instanceIds || [];
+        var nextId = (meta.kind === 'named' && ids[idxVal]) ? ids[idxVal] : '';
         sendPluginSlotPatch(idx, {
-          instanceIndex: parseInt(selInst.value, 10) || 0
+          instanceIndex: idxVal,
+          instanceId: nextId
         });
       };
 
@@ -559,7 +572,9 @@
         wrapSource: wrapSource,
         selSource: selSource,
         wrapInst: wrapInst,
+        lblInst: lblInst,
         selInst: selInst,
+        hintInst: hintInst,
         wrapProp: wrapProp,
         selProp: selProp,
         wrapShape: wrapShape,
@@ -569,6 +584,47 @@
         previewEl: previewEl
       };
       return slotWidgets[idx];
+    }
+
+    function getSourceUiMeta(category, item) {
+      if (category === 'notifications' && item === 'notification') {
+        return {
+          kind: 'rolling',
+          pickerLabel: 'Which Notification',
+          positions: ['Latest notification', '2nd latest', '3rd latest'],
+          hint: 'Always updates automatically as new notifications arrive.'
+        };
+      }
+      if (category === 'calendar' && item === 'event') {
+        return {
+          kind: 'rolling',
+          pickerLabel: 'Which Event',
+          positions: ['Next event', '2nd upcoming', '3rd upcoming'],
+          hint: 'Always tracks your next upcoming event automatically.'
+        };
+      }
+      if (category === 'weather' && item === 'hour') {
+        return {
+          kind: 'rolling',
+          pickerLabel: 'Forecast Hour',
+          positions: ['Next hour', '+2 hours', '+3 hours', '+4 hours', '+5 hours', '+6 hours'],
+          hint: 'Tracks the upcoming hourly forecast relative to now.'
+        };
+      }
+      if (category === 'weather' && item === 'location') {
+        return {
+          kind: 'named',
+          pickerLabel: 'Saved Location',
+          positions: [],
+          hint: ''
+        };
+      }
+      return {
+        kind: 'named',
+        pickerLabel: 'Item',
+        positions: [],
+        hint: ''
+      };
     }
 
     function renderPluginBox(idx, isVisible) {
@@ -606,19 +662,57 @@
 
       buildSourceSelectOptions(w.selSource, sourceVal);
 
-      var instances = st.instances || [];
-      if (cfg.mode === 'custom' && instances.length > 1) {
-        w.wrapInst.style.display = 'block';
-        var instItems = [];
-        for (var i = 0; i < instances.length; i++) {
-          instItems.push({ value: String(i), label: (i + 1) + '. ' + instances[i] });
+      var props = st.properties || [];
+      var activeProp = st.activeProperty || cfg.property || '';
+      if (!activeProp && props.length) {
+        activeProp = props[0];
+        for (var dp = 0; dp < props.length; dp++) {
+          if (props[dp] !== 'name') { activeProp = props[dp]; break; }
         }
-        syncSimpleSelect(w.selInst, instItems, String(cfg.instanceIndex || 0));
-      } else {
-        w.wrapInst.style.display = 'none';
       }
 
-      var props = st.properties || [];
+      var uiMeta = cfg.mode === 'custom'
+        ? getSourceUiMeta(cfg.category, cfg.item)
+        : { kind: st.sourceKind || 'named', pickerLabel: 'Item', positions: [], hint: '' };
+
+      var instances = st.instances || [];
+      var instanceIds = st.instanceIds || [];
+      if (cfg.mode === 'custom' && uiMeta.kind === 'rolling' && activeProp !== '__count') {
+        w.wrapInst.style.display = 'block';
+        w.lblInst.textContent = uiMeta.pickerLabel;
+        var posItems = [];
+        for (var r = 0; r < uiMeta.positions.length; r++) {
+          var curName = instances[r];
+          var posLabel = curName
+            ? (uiMeta.positions[r] + ' (now: ' + curName + ')')
+            : (uiMeta.positions[r] + ' (none)');
+          posItems.push({ value: String(r), label: posLabel });
+        }
+        syncSimpleSelect(w.selInst, posItems, String(cfg.instanceIndex || 0));
+        if (uiMeta.hint) {
+          w.hintInst.textContent = uiMeta.hint;
+          w.hintInst.style.display = 'block';
+        } else {
+          w.hintInst.style.display = 'none';
+        }
+      } else if (cfg.mode === 'custom' && uiMeta.kind === 'named' && instances.length > 1) {
+        w.wrapInst.style.display = 'block';
+        w.lblInst.textContent = uiMeta.pickerLabel;
+        var instItems = [];
+        var selectedInstIdx = String(cfg.instanceIndex || 0);
+        for (var i = 0; i < instances.length; i++) {
+          instItems.push({ value: String(i), label: instances[i] });
+          if (cfg.instanceId && instanceIds[i] && String(instanceIds[i]) === String(cfg.instanceId)) {
+            selectedInstIdx = String(i);
+          }
+        }
+        syncSimpleSelect(w.selInst, instItems, selectedInstIdx);
+        w.hintInst.style.display = 'none';
+      } else {
+        w.wrapInst.style.display = 'none';
+        w.hintInst.style.display = 'none';
+      }
+
       if (cfg.mode === 'custom' && props.length > 1) {
         w.wrapProp.style.display = 'block';
         var propItems = [];
@@ -626,22 +720,18 @@
         for (var p = 0; p < props.length; p++) {
           var pn = props[p];
           var pv = previews[pn];
+          var pretty = pn === '__count' ? 'Total count' : pn.replace(/_/g, ' ');
           propItems.push({
             value: pn,
-            label: pv ? (pn.replace(/_/g, ' ') + ': ' + pv) : pn.replace(/_/g, ' ')
+            label: (pv !== undefined && pv !== '') ? (pretty + ': ' + pv) : pretty
           });
         }
-        var defaultProp = props[0];
-        for (var dp = 0; dp < props.length; dp++) {
-          if (props[dp] !== 'name') { defaultProp = props[dp]; break; }
-        }
-        var activeProp = (cfg.property && props.indexOf(cfg.property) !== -1) ? cfg.property : defaultProp;
         syncSimpleSelect(w.selProp, propItems, activeProp);
       } else {
         w.wrapProp.style.display = 'none';
       }
 
-      if (st.hasBitmapShape) {
+      if (st.hasBitmapShape && activeProp !== '__count') {
         w.wrapShape.style.display = 'block';
         syncSimpleSelect(w.selShape, [
           { value: '', label: 'Auto (Text if available, else Icon)' },
@@ -679,6 +769,11 @@
           errDiv.className = 'preview-err';
           errDiv.textContent = st.error;
           w.previewEl.appendChild(errDiv);
+        } else if (st.hint) {
+          var hintDiv = document.createElement('div');
+          hintDiv.className = 'hint';
+          hintDiv.textContent = st.hint;
+          w.previewEl.appendChild(hintDiv);
         }
       }
     }
