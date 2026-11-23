@@ -1,130 +1,779 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-    <title>Settings</title>
-    <style>
-        body { background: #111; color: #fff; font-family: sans-serif; padding: 20px; }
-        div { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        label { font-weight: bold; }
-        input[type="checkbox"] { width: auto; }
-        input[type="text"], select { background: #222; color: #fff; border: 1px solid #444; padding: 8px; width: 150px; box-sizing: border-box; }
-        .full-width { display: block; }
-        .full-width input, .full-width select { width: 100%; margin-top: 5px; }
-        button { background: #00e5ff; color: #000; border: none; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; display: block; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minimalist Analog Settings</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #111;
+      color: #f5f5f7;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+    }
+    .status {
+      font-size: 13px;
+      color: #8e8e93;
+      margin: 0 0 18px 0;
+      min-height: 18px;
+    }
+    .status.ok { color: #00e5ff; }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #8e8e93;
+      margin: 20px 4px 8px 4px;
+    }
+    .card {
+      background: #1c1c1e;
+      border-radius: 12px;
+      padding: 4px 14px;
+      margin-bottom: 12px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid #2c2c2e;
+      gap: 12px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row label {
+      font-weight: 500;
+      flex: 1;
+    }
+    .stack {
+      padding: 11px 0;
+      border-bottom: 1px solid #2c2c2e;
+    }
+    .stack:last-child { border-bottom: none; }
+    .stack label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .sublabel {
+      font-size: 12px;
+      color: #8e8e93;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: #00e5ff;
+      flex: 0 0 auto;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      background: #2c2c2e;
+      color: #fff;
+      border: 1px solid #3a3a3c;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 16px;
+    }
+    .hint {
+      font-size: 12px;
+      color: #8e8e93;
+      margin-top: 5px;
+      display: block;
+    }
+    .plugin-box {
+      margin-top: 10px;
+      padding: 12px;
+      background: #141416;
+      border: 1px solid #2c2c2e;
+      border-left: 3px solid #00e5ff;
+      border-radius: 8px;
+      display: none;
+    }
+    .plugin-box.visible { display: block; }
+    .plugin-field { margin-bottom: 10px; }
+    .plugin-field:last-child { margin-bottom: 0; }
+    .preview-box {
+      margin-top: 8px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      background: #222225;
+      font-size: 14px;
+      color: #d1d1d6;
+    }
+    .preview-val {
+      font-weight: 700;
+      color: #fff;
+    }
+    .preview-err {
+      color: #ff9f0a;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .save-btn {
+      background: #00e5ff;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      width: 100%;
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 16px;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <h2>Settings</h2>
-    <div>
-        <label for="showBluetooth">Bluetooth Icon</label>
-        <input type="checkbox" id="showBluetooth">
-    </div>
-    <div>
-        <label for="showSteps">Step Progress Border</label>
-        <input type="checkbox" id="showSteps">
-    </div>
-    <div>
-        <label for="showBatteryBar">Battery Bar (under logo)</label>
-        <input type="checkbox" id="showBatteryBar">
-    </div>
-    <div>
-        <label for="showSeconds">Show Seconds Hand</label>
-        <input type="checkbox" id="showSeconds">
-    </div>
-    <div>
-        <label for="fixedHands">Fixed Hand Length</label>
-        <input type="checkbox" id="fixedHands">
-    </div>
-    <div>
-        <label for="largeDate">Large Date Font</label>
-        <input type="checkbox" id="largeDate">
-    </div>
-    <div class="full-width">
-        <label>Left Complication</label>
-        <select id="leftComplication">
-            <option value="0">None</option>
-            <option value="1">Weather</option>
-            <option value="2">Steps</option>
-            <option value="3">Heart Rate</option>
-            <option value="4">Battery</option>
-            <option value="5">Distance</option>
-            <option value="6">Day of Week</option>
-        </select>
-    </div>
-    <div class="full-width">
-        <label>Right Complication</label>
-        <select id="rightComplication">
-            <option value="0">None</option>
-            <option value="1">Weather</option>
-            <option value="2">Steps</option>
-            <option value="3">Heart Rate</option>
-            <option value="4">Battery</option>
-            <option value="5">Distance</option>
-            <option value="6">Day of Week</option>
-        </select>
-    </div>
-    <div class="full-width">
-        <label>Date Format</label>
-        <input type="text" id="dateFormat" placeholder="%d %b">
-        <small style="color:#888;display:block;margin-top:5px">Use %d (day), %m (month), %y (year), %b (month name). Example: %d/%m/%y</small>
-    </div>
-    <div class="full-width">
-        <label>Temperature Unit</label>
-        <select id="tempUnit">
-            <option value="0">Celsius</option>
-            <option value="1">Fahrenheit</option>
-        </select>
-    </div>
-    <div class="full-width">
-        <label>Step Goal</label>
-        <input type="text" id="stepGoal" placeholder="10000">
-    </div>
-    <button id="saveBtn">Save</button>
+  <h1>Minimalist Analog</h1>
+  <p class="status" id="status">Loading settings...</p>
 
-    <script>
-        function getQueryParam(n, d) {
-            var q = window.location.search.substring(1);
-            var v = q.split("&");
-            for (var i = 0; i < v.length; i++) {
-                var p = v[i].split("=");
-                try {
-                    if (decodeURIComponent(p[0]) === n) return decodeURIComponent(p[1]);
-                } catch (e) {
-                    if (p[0] === n) return p[1];
-                }
-            }
-            return d;
+  <div class="section-title">Display &amp; Hands</div>
+  <div class="card">
+    <div class="row">
+      <label for="showBluetooth">Bluetooth Icon</label>
+      <input type="checkbox" id="showBluetooth">
+    </div>
+    <div class="row">
+      <label for="showSteps">Step Progress Border</label>
+      <input type="checkbox" id="showSteps">
+    </div>
+    <div class="row">
+      <label for="showBatteryBar">Battery Bar (under logo)</label>
+      <input type="checkbox" id="showBatteryBar">
+    </div>
+    <div class="row">
+      <label for="showSeconds">Show Seconds Hand</label>
+      <input type="checkbox" id="showSeconds">
+    </div>
+    <div class="row">
+      <label for="fixedHands">Fixed Hand Length</label>
+      <input type="checkbox" id="fixedHands">
+    </div>
+    <div class="row">
+      <label for="largeDate">Large Date Font</label>
+      <input type="checkbox" id="largeDate">
+    </div>
+  </div>
+
+  <div class="section-title">Complications</div>
+  <div class="card">
+    <div class="stack">
+      <label for="leftComp">Left Complication</label>
+      <select id="leftComp">
+        <option value="0">None</option>
+        <option value="1">Weather</option>
+        <option value="2">Steps</option>
+        <option value="3">Heart Rate</option>
+        <option value="4">Battery</option>
+        <option value="5">Distance</option>
+        <option value="6">Day of Week</option>
+        <option value="7">Plugin (PebbleOS)</option>
+      </select>
+      <div class="plugin-box" id="pluginBox0"></div>
+    </div>
+
+    <div class="stack">
+      <label for="rightComp">Right Complication</label>
+      <select id="rightComp">
+        <option value="0">None</option>
+        <option value="1">Weather</option>
+        <option value="2">Steps</option>
+        <option value="3">Heart Rate</option>
+        <option value="4">Battery</option>
+        <option value="5">Distance</option>
+        <option value="6">Day of Week</option>
+        <option value="7">Plugin (PebbleOS)</option>
+      </select>
+      <div class="plugin-box" id="pluginBox1"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Date, Weather &amp; Fitness</div>
+  <div class="card">
+    <div class="stack">
+      <label for="dateFormat">Date Format</label>
+      <input type="text" id="dateFormat" placeholder="%d %b">
+      <span class="hint">Use %d (day), %m (month), %y (year), %b (month name), %a (weekday).</span>
+    </div>
+    <div class="stack">
+      <label for="tempUnit">Temperature Unit</label>
+      <select id="tempUnit">
+        <option value="2">Auto (Pebble App)</option>
+        <option value="0">Celsius (&deg;C)</option>
+        <option value="1">Fahrenheit (&deg;F)</option>
+      </select>
+    </div>
+    <div class="stack">
+      <label for="stepGoal">Daily Step Goal</label>
+      <input type="number" id="stepGoal" placeholder="10000" min="100" max="100000">
+    </div>
+  </div>
+
+  <button id="saveBtn" class="save-btn">Save</button>
+
+  <script>
+    var isLiveMode = typeof Pebble !== 'undefined' && typeof Pebble.sendMessage === 'function';
+    var statusEl = document.getElementById('status');
+    var saveBtn = document.getElementById('saveBtn');
+    var statusTimer = null;
+
+    var state = {
+      hasPlugins: false,
+      catalogue: [],
+      preferred: [],
+      slotConfigs: [{}, {}],
+      slotStatus: [{}, {}]
+    };
+
+    var elShowBluetooth = document.getElementById('showBluetooth');
+    var elShowSteps = document.getElementById('showSteps');
+    var elShowBatteryBar = document.getElementById('showBatteryBar');
+    var elShowSeconds = document.getElementById('showSeconds');
+    var elFixedHands = document.getElementById('fixedHands');
+    var elLargeDate = document.getElementById('largeDate');
+    var elLeftComp = document.getElementById('leftComp');
+    var elRightComp = document.getElementById('rightComp');
+    var elDateFormat = document.getElementById('dateFormat');
+    var elTempUnit = document.getElementById('tempUnit');
+    var elStepGoal = document.getElementById('stepGoal');
+
+    var slotWidgets = [null, null];
+    var textDebounceTimer = null;
+    var labelDebounceTimers = [null, null];
+
+    function getQueryParam(n, d) {
+      var q = window.location.search.substring(1);
+      if (!q) return d;
+      var v = q.split('&');
+      for (var i = 0; i < v.length; i++) {
+        var p = v[i].split('=');
+        try {
+          if (decodeURIComponent(p[0]) === n) return decodeURIComponent(p[1]);
+        } catch (e) {
+          if (p[0] === n) return p[1];
         }
+      }
+      return d;
+    }
 
-        document.getElementById('showBluetooth').checked = getQueryParam('ShowBluetooth', '1') === '1';
-        document.getElementById('showSteps').checked = getQueryParam('ShowSteps', '1') === '1';
-        document.getElementById('showBatteryBar').checked = getQueryParam('ShowBattBar', '1') === '1';
-        document.getElementById('showSeconds').checked = getQueryParam('ShowSeconds', '1') === '1';
-        document.getElementById('fixedHands').checked = getQueryParam('FixedHands', '0') === '1';
-        document.getElementById('largeDate').checked = getQueryParam('LargeDate', '0') === '1';
-        document.getElementById('leftComplication').value = getQueryParam('LeftComp', '1');
-        document.getElementById('rightComplication').value = getQueryParam('RightComp', '2');
-        document.getElementById('dateFormat').value = getQueryParam('DateFormat', '%d %b');
-        document.getElementById('tempUnit').value = getQueryParam('TempUnit', '0');
-        document.getElementById('stepGoal').value = getQueryParam('StepGoal', '10000');
+    function setLiveStatus(text, flashUpdated) {
+      statusEl.textContent = text;
+      statusEl.className = 'status ok';
+      if (flashUpdated) {
+        if (statusTimer) clearTimeout(statusTimer);
+        statusTimer = setTimeout(function () {
+          statusEl.textContent = 'Live — changes apply straight away';
+        }, 1200);
+      }
+    }
 
-        document.getElementById('saveBtn').addEventListener('click', function() {
-            var config = {
-                'ShowBluetooth': document.getElementById('showBluetooth').checked,
-                'ShowSteps': document.getElementById('showSteps').checked,
-                'ShowBattBar': document.getElementById('showBatteryBar').checked,
-                'ShowSeconds': document.getElementById('showSeconds').checked,
-                'FixedHands': document.getElementById('fixedHands').checked,
-                'LargeDate': document.getElementById('largeDate').checked,
-                'LeftComp': parseInt(document.getElementById('leftComplication').value),
-                'RightComp': parseInt(document.getElementById('rightComplication').value),
-                'DateFormat': document.getElementById('dateFormat').value,
-                'TempUnit': parseInt(document.getElementById('tempUnit').value),
-                'StepGoal': parseInt(document.getElementById('stepGoal').value) || 10000
-            };
-            var return_to = getQueryParam('return_to', 'pebblejs://close#');
-            document.location = return_to + encodeURIComponent(JSON.stringify(config));
+    function readSettingsFromForm() {
+      return {
+        ShowBluetooth: elShowBluetooth.checked,
+        ShowSteps: elShowSteps.checked,
+        ShowBattBar: elShowBatteryBar.checked,
+        ShowSeconds: elShowSeconds.checked,
+        FixedHands: elFixedHands.checked,
+        LargeDate: elLargeDate.checked,
+        LeftComp: parseInt(elLeftComp.value, 10) || 0,
+        RightComp: parseInt(elRightComp.value, 10) || 0,
+        DateFormat: elDateFormat.value || '%d %b',
+        TempUnit: parseInt(elTempUnit.value, 10),
+        StepGoal: parseInt(elStepGoal.value, 10) || 10000
+      };
+    }
+
+    function populateSettingsForm(s) {
+      if (!s) return;
+      elShowBluetooth.checked = !!s.ShowBluetooth;
+      elShowSteps.checked = !!s.ShowSteps;
+      elShowBatteryBar.checked = !!s.ShowBattBar;
+      elShowSeconds.checked = !!s.ShowSeconds;
+      elFixedHands.checked = !!s.FixedHands;
+      elLargeDate.checked = !!s.LargeDate;
+      elLeftComp.value = String(s.LeftComp !== undefined ? s.LeftComp : 1);
+      elRightComp.value = String(s.RightComp !== undefined ? s.RightComp : 2);
+      if (document.activeElement !== elDateFormat) {
+        elDateFormat.value = s.DateFormat || '%d %b';
+      }
+      elTempUnit.value = String(s.TempUnit !== undefined ? s.TempUnit : 2);
+      if (document.activeElement !== elStepGoal) {
+        elStepGoal.value = String(s.StepGoal || 10000);
+      }
+      renderPluginBoxes();
+    }
+
+    function sendSettingsUpdate() {
+      renderPluginBoxes();
+      if (!isLiveMode) return;
+      var settings = readSettingsFromForm();
+      Pebble.sendMessage('pkjs', {
+        type: 'updateSettings',
+        settings: settings
+      }).then(function (reply) {
+        if (reply && reply.state) {
+          applyIncomingState(reply.state, false);
+        }
+        setLiveStatus('Updated \u2713', true);
+      });
+    }
+
+    function sendPluginSlotPatch(idx, patch) {
+      if (!isLiveMode) return;
+      Pebble.sendMessage('pkjs', {
+        type: 'updatePluginSlot',
+        slot: idx,
+        config: patch
+      }).then(function (reply) {
+        if (reply && reply.state) {
+          applyIncomingState(reply.state, false);
+        }
+        setLiveStatus('Updated \u2713', true);
+      });
+    }
+
+    function syncSimpleSelect(selectEl, items, selectedValue) {
+      var sig = items.map(function (it) { return it.value; }).join('|');
+      if (selectEl.dataset.sig !== sig) {
+        selectEl.dataset.sig = sig;
+        selectEl.innerHTML = '';
+        for (var i = 0; i < items.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = items[i].value;
+          opt.textContent = items[i].label;
+          selectEl.appendChild(opt);
+        }
+      }
+      for (var j = 0; j < items.length; j++) {
+        if (selectEl.children[j]) {
+          selectEl.children[j].textContent = items[j].label;
+          selectEl.children[j].selected = (items[j].value === selectedValue);
+        }
+      }
+    }
+
+    function buildSourceSelectOptions(selectEl, selectedValue) {
+      var byCat = {};
+      var catOrder = [];
+      var catEntries = state.catalogue || [];
+      var sigParts = [];
+
+      for (var p = 0; p < 5; p++) {
+        sigParts.push('pref:' + p);
+      }
+      for (var c = 0; c < catEntries.length; c++) {
+        var entry = catEntries[c];
+        sigParts.push(entry.value);
+        if (!byCat[entry.category]) {
+          byCat[entry.category] = [];
+          catOrder.push(entry.category);
+        }
+        byCat[entry.category].push(entry);
+      }
+
+      var sig = sigParts.join(',');
+      if (selectEl.dataset.sig !== sig) {
+        selectEl.dataset.sig = sig;
+        selectEl.innerHTML = '';
+
+        var prefGroup = document.createElement('optgroup');
+        prefGroup.label = 'Pebble Preferred Complications';
+        for (var i = 0; i < 5; i++) {
+          var opt = document.createElement('option');
+          opt.value = 'pref|' + i;
+          prefGroup.appendChild(opt);
+        }
+        selectEl.appendChild(prefGroup);
+
+        for (var g = 0; g < catOrder.length; g++) {
+          var catName = catOrder[g];
+          var grp = document.createElement('optgroup');
+          grp.label = catName;
+          var list = byCat[catName];
+          for (var m = 0; m < list.length; m++) {
+            var itemOpt = document.createElement('option');
+            itemOpt.value = 'custom|' + list[m].value;
+            itemOpt.textContent = list[m].pluginName + ': ' + list[m].item.replace(/_/g, ' ');
+            grp.appendChild(itemOpt);
+          }
+          selectEl.appendChild(grp);
+        }
+      }
+
+      var prefGroupEl = selectEl.querySelector('optgroup');
+      if (prefGroupEl) {
+        for (var idx = 0; idx < 5; idx++) {
+          var prefOpt = prefGroupEl.children[idx];
+          if (prefOpt) {
+            var pr = (state.preferred || [])[idx];
+            var suffix = pr ? (' (' + pr.category + '/' + pr.property + ')') : ' (unset)';
+            prefOpt.textContent = 'Auto: Pebble Complication Slot ' + (idx + 1) + suffix;
+          }
+        }
+      }
+
+      selectEl.value = selectedValue;
+      if (selectEl.value !== selectedValue && prefGroupEl && prefGroupEl.children[0]) {
+        selectEl.value = 'pref|0';
+      }
+    }
+
+    function ensureSlotWidgets(idx) {
+      if (slotWidgets[idx]) return slotWidgets[idx];
+      var box = document.getElementById('pluginBox' + idx);
+      box.innerHTML = '';
+
+      var wrapSource = document.createElement('div');
+      wrapSource.className = 'plugin-field';
+      var lblSource = document.createElement('div');
+      lblSource.className = 'sublabel';
+      lblSource.textContent = 'Plugin Source';
+      var selSource = document.createElement('select');
+      wrapSource.appendChild(lblSource);
+      wrapSource.appendChild(selSource);
+
+      var wrapInst = document.createElement('div');
+      wrapInst.className = 'plugin-field';
+      var lblInst = document.createElement('div');
+      lblInst.className = 'sublabel';
+      lblInst.textContent = 'Instance';
+      var selInst = document.createElement('select');
+      wrapInst.appendChild(lblInst);
+      wrapInst.appendChild(selInst);
+
+      var wrapProp = document.createElement('div');
+      wrapProp.className = 'plugin-field';
+      var lblProp = document.createElement('div');
+      lblProp.className = 'sublabel';
+      lblProp.textContent = 'Reading / Property';
+      var selProp = document.createElement('select');
+      wrapProp.appendChild(lblProp);
+      wrapProp.appendChild(selProp);
+
+      var wrapShape = document.createElement('div');
+      wrapShape.className = 'plugin-field';
+      var lblShape = document.createElement('div');
+      lblShape.className = 'sublabel';
+      lblShape.textContent = 'Display Style';
+      var selShape = document.createElement('select');
+      wrapShape.appendChild(lblShape);
+      wrapShape.appendChild(selShape);
+
+      var wrapLabel = document.createElement('div');
+      wrapLabel.className = 'plugin-field';
+      var lblCustom = document.createElement('div');
+      lblCustom.className = 'sublabel';
+      lblCustom.textContent = 'Custom Label (Optional)';
+      var inpLabel = document.createElement('input');
+      inpLabel.type = 'text';
+      inpLabel.maxLength = 15;
+      inpLabel.placeholder = 'Auto from plugin';
+      wrapLabel.appendChild(lblCustom);
+      wrapLabel.appendChild(inpLabel);
+
+      var previewEl = document.createElement('div');
+      previewEl.className = 'preview-box';
+
+      box.appendChild(wrapSource);
+      box.appendChild(wrapInst);
+      box.appendChild(wrapProp);
+      box.appendChild(wrapShape);
+      box.appendChild(wrapLabel);
+      box.appendChild(previewEl);
+
+      selSource.onchange = function () {
+        var parts = (selSource.value || '').split('|');
+        if (parts[0] === 'pref') {
+          sendPluginSlotPatch(idx, {
+            mode: 'preferred',
+            preferredIndex: parseInt(parts[1], 10) || 0,
+            plugin: '',
+            category: '',
+            item: '',
+            instanceIndex: 0,
+            property: '',
+            shape: ''
+          });
+        } else if (parts[0] === 'custom' && parts.length >= 4) {
+          sendPluginSlotPatch(idx, {
+            mode: 'custom',
+            plugin: parts[1],
+            category: parts[2],
+            item: parts[3],
+            instanceIndex: 0,
+            property: '',
+            shape: ''
+          });
+        }
+      };
+
+      selInst.onchange = function () {
+        sendPluginSlotPatch(idx, {
+          instanceIndex: parseInt(selInst.value, 10) || 0
         });
-    </script>
+      };
+
+      selProp.onchange = function () {
+        sendPluginSlotPatch(idx, {
+          property: selProp.value || '',
+          shape: ''
+        });
+      };
+
+      selShape.onchange = function () {
+        sendPluginSlotPatch(idx, {
+          shape: selShape.value || ''
+        });
+      };
+
+      function flushLabel() {
+        if (labelDebounceTimers[idx]) {
+          clearTimeout(labelDebounceTimers[idx]);
+          labelDebounceTimers[idx] = null;
+        }
+        sendPluginSlotPatch(idx, { label: inpLabel.value || '' });
+      }
+
+      inpLabel.oninput = function () {
+        if (!isLiveMode) return;
+        if (labelDebounceTimers[idx]) clearTimeout(labelDebounceTimers[idx]);
+        labelDebounceTimers[idx] = setTimeout(flushLabel, 450);
+      };
+      inpLabel.onchange = flushLabel;
+
+      slotWidgets[idx] = {
+        box: box,
+        wrapSource: wrapSource,
+        selSource: selSource,
+        wrapInst: wrapInst,
+        selInst: selInst,
+        wrapProp: wrapProp,
+        selProp: selProp,
+        wrapShape: wrapShape,
+        selShape: selShape,
+        wrapLabel: wrapLabel,
+        inpLabel: inpLabel,
+        previewEl: previewEl
+      };
+      return slotWidgets[idx];
+    }
+
+    function renderPluginBox(idx, isVisible) {
+      var box = document.getElementById('pluginBox' + idx);
+      if (!isVisible) {
+        box.className = 'plugin-box';
+        return;
+      }
+      box.className = 'plugin-box visible';
+      var w = ensureSlotWidgets(idx);
+
+      if (!isLiveMode) {
+        w.wrapSource.style.display = 'none';
+        w.wrapInst.style.display = 'none';
+        w.wrapProp.style.display = 'none';
+        w.wrapShape.style.display = 'none';
+        w.wrapLabel.style.display = 'none';
+        w.previewEl.innerHTML = '';
+        var legacyMsg = document.createElement('div');
+        legacyMsg.className = 'preview-err';
+        legacyMsg.textContent = 'PebbleOS Plugins require Pebble Mobile App 1.18+ / 2.0+. In older apps this slot shows "--".';
+        w.previewEl.appendChild(legacyMsg);
+        return;
+      }
+
+      w.wrapSource.style.display = 'block';
+      w.wrapLabel.style.display = 'block';
+
+      var cfg = state.slotConfigs[idx] || {};
+      var st = state.slotStatus[idx] || {};
+
+      var sourceVal = cfg.mode === 'custom' && cfg.category && cfg.item
+        ? ('custom|' + cfg.plugin + '|' + cfg.category + '|' + cfg.item)
+        : ('pref|' + (cfg.preferredIndex || 0));
+
+      buildSourceSelectOptions(w.selSource, sourceVal);
+
+      var instances = st.instances || [];
+      if (cfg.mode === 'custom' && instances.length > 1) {
+        w.wrapInst.style.display = 'block';
+        var instItems = [];
+        for (var i = 0; i < instances.length; i++) {
+          instItems.push({ value: String(i), label: (i + 1) + '. ' + instances[i] });
+        }
+        syncSimpleSelect(w.selInst, instItems, String(cfg.instanceIndex || 0));
+      } else {
+        w.wrapInst.style.display = 'none';
+      }
+
+      var props = st.properties || [];
+      if (cfg.mode === 'custom' && props.length > 1) {
+        w.wrapProp.style.display = 'block';
+        var propItems = [];
+        var previews = st.previews || {};
+        for (var p = 0; p < props.length; p++) {
+          var pn = props[p];
+          var pv = previews[pn];
+          propItems.push({
+            value: pn,
+            label: pv ? (pn.replace(/_/g, ' ') + ': ' + pv) : pn.replace(/_/g, ' ')
+          });
+        }
+        var defaultProp = props[0];
+        for (var dp = 0; dp < props.length; dp++) {
+          if (props[dp] !== 'name') { defaultProp = props[dp]; break; }
+        }
+        var activeProp = (cfg.property && props.indexOf(cfg.property) !== -1) ? cfg.property : defaultProp;
+        syncSimpleSelect(w.selProp, propItems, activeProp);
+      } else {
+        w.wrapProp.style.display = 'none';
+      }
+
+      if (st.hasBitmapShape) {
+        w.wrapShape.style.display = 'block';
+        syncSimpleSelect(w.selShape, [
+          { value: '', label: 'Auto (Text if available, else Icon)' },
+          { value: 'value', label: 'Value / Text' },
+          { value: 'image', label: 'Icon / Image Bitmap' }
+        ], cfg.shape || '');
+      } else {
+        w.wrapShape.style.display = 'none';
+      }
+
+      if (document.activeElement !== w.inpLabel) {
+        w.inpLabel.value = cfg.label || '';
+      }
+
+      w.previewEl.innerHTML = '';
+      if (!state.hasPlugins) {
+        var msg = document.createElement('div');
+        msg.className = 'preview-err';
+        msg.textContent = 'Pebble Plugins API not detected in this mobile app version (requires 2.0+ or 1.16+ preview).';
+        w.previewEl.appendChild(msg);
+      } else {
+        var line = document.createElement('div');
+        line.appendChild(document.createTextNode('Preview: '));
+        var valSpan = document.createElement('span');
+        valSpan.className = 'preview-val';
+        var labelPart = st.label ? (st.label + ' \u2022 ') : '';
+        var valPart = st.value || '--';
+        var rangePart = st.hasRange ? (' (' + st.fill + '% bar)') : '';
+        valSpan.textContent = labelPart + valPart + rangePart;
+        line.appendChild(valSpan);
+        w.previewEl.appendChild(line);
+
+        if (st.error) {
+          var errDiv = document.createElement('div');
+          errDiv.className = 'preview-err';
+          errDiv.textContent = st.error;
+          w.previewEl.appendChild(errDiv);
+        }
+      }
+    }
+
+    function renderPluginBoxes() {
+      renderPluginBox(0, elLeftComp.value === '7');
+      renderPluginBox(1, elRightComp.value === '7');
+    }
+
+    function applyIncomingState(incoming, updateFormFields) {
+      if (!incoming) return;
+      state.hasPlugins = !!incoming.hasPlugins;
+      state.catalogue = incoming.catalogue || [];
+      state.preferred = incoming.preferred || [];
+      state.slotConfigs = incoming.slotConfigs || [{}, {}];
+      state.slotStatus = incoming.slotStatus || [{}, {}];
+      if (updateFormFields && incoming.settings) {
+        populateSettingsForm(incoming.settings);
+      } else {
+        renderPluginBoxes();
+      }
+    }
+
+    elShowBluetooth.onchange = sendSettingsUpdate;
+    elShowSteps.onchange = sendSettingsUpdate;
+    elShowBatteryBar.onchange = sendSettingsUpdate;
+    elShowSeconds.onchange = sendSettingsUpdate;
+    elFixedHands.onchange = sendSettingsUpdate;
+    elLargeDate.onchange = sendSettingsUpdate;
+    elLeftComp.onchange = sendSettingsUpdate;
+    elRightComp.onchange = sendSettingsUpdate;
+    elTempUnit.onchange = sendSettingsUpdate;
+
+    function flushTextSettings() {
+      if (textDebounceTimer) {
+        clearTimeout(textDebounceTimer);
+        textDebounceTimer = null;
+      }
+      sendSettingsUpdate();
+    }
+
+    elDateFormat.oninput = function () {
+      if (!isLiveMode) return;
+      if (textDebounceTimer) clearTimeout(textDebounceTimer);
+      textDebounceTimer = setTimeout(flushTextSettings, 450);
+    };
+    elDateFormat.onchange = flushTextSettings;
+
+    elStepGoal.oninput = function () {
+      if (!isLiveMode) return;
+      if (textDebounceTimer) clearTimeout(textDebounceTimer);
+      textDebounceTimer = setTimeout(flushTextSettings, 450);
+    };
+    elStepGoal.onchange = flushTextSettings;
+
+    if (isLiveMode) {
+      statusEl.textContent = 'Connecting to watchface...';
+      saveBtn.style.display = 'none';
+
+      Pebble.addEventListener('message', function (event) {
+        if (event && event.data && event.data.type === 'pluginState') {
+          applyIncomingState(event.data, false);
+        }
+      });
+
+      Pebble.addEventListener('ready', function (event) {
+        if (event && event.target !== 'pkjs') return;
+        setLiveStatus('Live — changes apply straight away', false);
+        Pebble.sendMessage('pkjs', { type: 'getState' }).then(function (reply) {
+          applyIncomingState(reply, true);
+        });
+      });
+    } else {
+      statusEl.textContent = 'Legacy configuration mode — tap Save to apply changes.';
+      saveBtn.style.display = 'block';
+
+      elShowBluetooth.checked = getQueryParam('ShowBluetooth', '1') === '1';
+      elShowSteps.checked = getQueryParam('ShowSteps', '1') === '1';
+      elShowBatteryBar.checked = getQueryParam('ShowBattBar', '1') === '1';
+      elShowSeconds.checked = getQueryParam('ShowSeconds', '1') === '1';
+      elFixedHands.checked = getQueryParam('FixedHands', '0') === '1';
+      elLargeDate.checked = getQueryParam('LargeDate', '0') === '1';
+      elLeftComp.value = getQueryParam('LeftComp', '1');
+      elRightComp.value = getQueryParam('RightComp', '2');
+      elDateFormat.value = getQueryParam('DateFormat', '%d %b');
+      elTempUnit.value = getQueryParam('TempUnit', '0');
+      elStepGoal.value = getQueryParam('StepGoal', '10000');
+      renderPluginBoxes();
+
+      saveBtn.addEventListener('click', function () {
+        var config = readSettingsFromForm();
+        var returnTo = getQueryParam('return_to', 'pebblejs://close#');
+        document.location = returnTo + encodeURIComponent(JSON.stringify(config));
+      });
+    }
+  </script>
 </body>
 </html>
